@@ -1,8 +1,10 @@
+This is my Git exercise
+
 # CSIT-165
 
 In Module 3 exercise #17 you will change the block-quote below:
 
-This is my Git exercise project.
+`This is the line you will change`
 
 
 ## What I ate for lunch today:
