@@ -4,7 +4,7 @@ This is my Git exercise
 
 In Module 3 exercise #17 you will change the block-quote below:
 
-`This is the line you will change`
+`He is dead Jim`
 
 
 ## What I ate for lunch today:
