@@ -1,0 +1,72 @@
+---
+title: "Project 1"
+author: "Name: Stirling Schabacker \n Partner: "
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(geosphere)
+library(knitr)
+```
+
+
+```{r load-data}
+# download datasets fresh each time the document is rendered
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", destfile = "deaths.csv")
+
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", destfile = "confirmations.csv")
+
+# load into data frames
+deaths <- read.csv("deaths.csv")
+confirmations <- read.csv("confirmations.csv")
+```
+
+## Objective 1
+```{r objective-1}
+# first date column is index 5; find row with max confirmations and deaths on day 1
+max_confirmations_row <- which.max(confirmations[, 5])
+max_deaths_row <- which.max(deaths[, 5])
+
+# extract region names
+origin_confirmations <- confirmations[max_confirmations_row, "Country.Region"]
+origin_deaths <- deaths[max_deaths_row, "Country.Region"]
+
+# save origin coordinates for use in objective 3
+origin_lat <- confirmations[max_confirmations_row, "Lat"]
+origin_long <- confirmations[max_confirmations_row, "Long"]
+
+# confirm both datasets point to the same origin
+if (origin_confirmations == origin_deaths) {
+  print(paste("The origin of COVID-19 is", origin_confirmations))
+} else {
+  print(paste("Confirmations origin:", origin_confirmations,
+              "Deaths origin:", origin_deaths))
+}
+```
+
+## Objective 2
+```{r objective-2}
+latest_region <- ""
+latest_date_index <- 0
+
+# outer loop: iterate through each row (region)
+for (i in 1:nrow(confirmations)) {
+  # inner loop: scan date columns left to right (col 5 onward)
+  for (j in 5:ncol(confirmations)) {
+    # first non-zero value = first confirmed case for this region
+    if (confirmations[i, j] > 0) {
+      # if this region's first case is more recent than current latest, update
+      if (j > latest_date_index) {
+        latest_date_index <- j
+        latest_region <- confirmations[i, "Country.Region"]
+      }
+      # stop scanning dates for this region once first case is found
+      break
+    }
+  }
+}
+
+latest_region
+names(confirmations)[latest_date_index]
+```
