@@ -1,15 +1,15 @@
 ---
 title: "Project 1"
-author: "Name: Stirling Schabacker \n Partner: "
+author: "Name: Stirling Schabacker \n Partner: Riley Williams"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(geosphere)
 library(knitr)
 ```
-
 
 ```{r load-data}
 # download datasets fresh each time the document is rendered
@@ -23,6 +23,7 @@ confirmations <- read.csv("confirmations.csv")
 ```
 
 ## Objective 1
+
 ```{r objective-1}
 # first date column is index 5; find row with max confirmations and deaths on day 1
 max_confirmations_row <- which.max(confirmations[, 5])
@@ -45,7 +46,10 @@ if (origin_confirmations == origin_deaths) {
 }
 ```
 
+Based on the first recorded day in the dataset, China had the greatest number of both deaths and confirmations. This suggests that China is the likely origin of COVID-19. The if statement confirms that both datasets indicate the same region, which validates the prediction. This also aligns with early epidemiological reports that indicate the outbreak began in China (specifically Wuhan, Hubei province based on historical records) in 2019.
+
 ## Objective 2
+
 ```{r objective-2}
 latest_region <- ""
 latest_date_index <- 0
@@ -74,7 +78,10 @@ latest_region
 names(confirmations)[latest_date_index]
 ```
 
+According to the dataset, the most recent region to record its first confirmed case was the United Kingdom on July 20th, 2022. The for loop looked through each region's data column until it found the first non-zero value to identify when each area entered the dataset. The difference between outbreak report in 2019 and the first confirmed case being 2022 potentially reflects a change in reporting policies, or a newly recognized regional subdivision, rather than the actual "first" exposure.
+
 ## Objective 3
+
 ```{r objective-3}
 # Calculating the distance from the origin of COVID-19 to the latest area to have a first confirmed case, which uses
 # the dism function from the geosphere package to calculate distance from longitude/latitude to meters
@@ -86,6 +93,7 @@ print(paste(latest_region, "is", distance_miles, "miles away from", origin_confi
 ```
 
 ## Objective 4
+
 ```{r objective-4}
 # Getting information to create a new dataframe for risk score assessment
 # This includes States/Provinces, Countries/Regions, Latitude, Longitude, Confirmations, Deaths, and the Risk Score
