@@ -1,17 +1,3 @@
----
-title: "Project 1"
-author: "Name: Stirling Schabacker \n Partner: "
-date: "`r Sys.Date()`"
-output: pdf_document
----
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(geosphere)
-library(knitr)
-```
-
-
-```{r load-data}
 # download datasets fresh each time the document is rendered
 download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", destfile = "deaths.csv")
 
@@ -20,10 +6,8 @@ download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/
 # load into data frames
 deaths <- read.csv("deaths.csv")
 confirmations <- read.csv("confirmations.csv")
-```
 
-## Objective 1
-```{r objective-1}
+# Objective 1
 # first date column is index 5; find row with max confirmations and deaths on day 1
 max_confirmations_row <- which.max(confirmations[, 5])
 max_deaths_row <- which.max(deaths[, 5])
@@ -43,10 +27,8 @@ if (origin_confirmations == origin_deaths) {
   print(paste("Confirmations origin:", origin_confirmations,
               "Deaths origin:", origin_deaths))
 }
-```
 
-## Objective 2
-```{r objective-2}
+# Objective 2
 latest_region <- ""
 latest_date_index <- 0
 
@@ -60,7 +42,6 @@ for (i in 1:nrow(confirmations)) {
       if (j > latest_date_index) {
         latest_date_index <- j
         latest_region <- confirmations[i, "Country.Region"]
-        # Longitude/Latitude of latest first confirmation (will be needed for Objective 3)
         latest_lat <- confirmations[i, "Lat"]
         latest_long <- confirmations [i, "Long"]
       }
@@ -72,10 +53,8 @@ for (i in 1:nrow(confirmations)) {
 
 latest_region
 names(confirmations)[latest_date_index]
-```
 
-## Objective 3
-```{r objective-3}
+# Objective 3
 # Calculating the distance from the origin of COVID-19 to the latest area to have a first confirmed case, which uses
 # the dism function from the geosphere package to calculate distance from longitude/latitude to meters
 distance_meters <- distm(c(origin_long,origin_lat), c(latest_long,latest_lat), fun=distGeo)
@@ -83,6 +62,6 @@ distance_meters <- distm(c(origin_long,origin_lat), c(latest_long,latest_lat), f
 distance_miles <- distance_meters/1609.344
 # Printing the results
 print(paste(latest_region, "is", distance_miles, "miles away from", origin_confirmations))
-```
 
-## Objective 4
+# Objective 4
+# 
