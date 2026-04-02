@@ -44,6 +44,9 @@ if (origin_confirmations == origin_deaths) {
               "Deaths origin:", origin_deaths))
 }
 ```
+Based on the first recorded day in the dataset, China had the greatest number of both deaths and confirmations. This suggests that China is the likely origin of COVID-19. The if statement confirms that both datasets indicate the same region, which validates the prediction. This also aligns with early epidemiological reports that indicate the outbreak began in China (specifically Wuhan, Hubei province based on historical records) in 2019.
+
+
 
 ## Objective 2
 ```{r objective-2}
@@ -70,3 +73,6 @@ for (i in 1:nrow(confirmations)) {
 latest_region
 names(confirmations)[latest_date_index]
 ```
+
+According to the dataset, the most recent region to record its first confirmed case was the United Kingdom on July 20th, 2022. The for loop looked through each region's data column until it found the first non-zero value to identify when each area entered the dataset. The difference between outbreak report in 2019 and the first confirmed case being 2022 potentially reflects a change in reporting policies, or a newly recognized regional subdivision, rather than the actual "first" exposure.
+
