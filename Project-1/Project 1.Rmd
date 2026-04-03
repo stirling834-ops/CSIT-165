@@ -89,8 +89,10 @@ distance_meters <- distm(c(origin_long,origin_lat), c(latest_long,latest_lat), f
 # This can then be calculated from meters to miles
 distance_miles <- distance_meters/1609.344
 # Printing the results
-print(paste(latest_region, "is", distance_miles, "miles away from", origin_confirmations))
+print(paste(latest_region, "is", round(distance_miles, 4), "miles away from", origin_confirmations))
 ```
+In epidemiology models, knowing distance between first cases and most recent confirmations is important as that can inform models as to the spread of the disease, which can help isolate *how* a disease is spread. The fact that UK is over 8,747 miles away is important because that's almost half a globe away, and 2.5 years after the initial outbreak. This would seem to indicate that the most recent reporting is in fact a change/standarization of reporting, as there is a low chance that it took 2.5 years to travel 8,700 miles. 
+
 
 ## Objective 4
 
@@ -119,12 +121,22 @@ min_risk_row = which.min(risk_assessment[, 7])
 # Next, the region names associated with the max and min risk are extracted
 max_risk_region = risk_assessment[max_risk_row, 2]
 min_risk_region = risk_assessment[min_risk_row, 2]
-# Printing the results
-print(paste("The region with the highest risk is", max_risk_region))
-print(paste("The region with the lowest risk is", min_risk_region))
-```
 
-## Objective 5 (Incomplete; Add in deaths!)
+# calculate global risk score for comparison
+global_risk <- 100 * (sum(filtered_deaths) / sum(filtered_confirmations))
+
+# Printing the results
+print(paste("The highest risk score is", round(risk_assessment[max_risk_row, 7], 4), "in", max_risk_region))
+print(paste("The lowest risk score is", round(risk_assessment[min_risk_row, 7], 4), "in", min_risk_region))
+print(paste("The global risk score is", round(global_risk, 4)))
+
+
+```
+Risk scores are useful for identifying areas that may be especially vulnerable to disease burden and for comparing outcomes across regions. However, they carry significant limitations, best demonstrated by the extremes in this dataset. The global risk score of approximately 1.01 suggests that roughly 1 out of every 100 confirmed cases resulted in death worldwide. North Korea's score of 600 reflects not a true mortality rate but rather the combination of an overpopulated country under an authoritarian regime that historically suppresses health data; with so few confirmed cases reported, even a small number of deaths produces an astronomically inflated score. Risk scores assume that confirmations and deaths are accurately and consistently reported, failing to account for healthcare access, age distribution, testing availability, and government transparency. Antarctica's score of 0 is unsurprising given that its small vetted research population likely had limited exposure throughout the pandemic entirely.
+
+
+
+## Objective 5
 
 ```{r, objective-5}
 # Creating a vector with all unique regions in the dataset
@@ -156,4 +168,36 @@ for (m in 1:5) {
 
 # Turning the top_confirmations dataframe into a table
 kable(top_confirmations)
+# in case you want to have the columns similar to mine :)
+# kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
 ```
+
+Table for the Deaths summary
+
+```{r objective-5b}
+unique_regions_deaths <- unique(deaths$Country.Region)
+deaths_sums <- numeric(length(unique_regions_deaths))
+
+# loop through each country and sum total deaths
+for (k in 1:length(unique_regions_deaths)) {
+  deaths_sums[k] <- sum(deaths[deaths$Country.Region == unique_regions_deaths[k], length(deaths[1,])])
+}
+
+deaths_assessment <- data.frame(unique_regions_deaths, deaths_sums)
+
+# loop through 5 times to find top 5 countries by deaths
+for (q in 1:5) {
+  top_deaths_row <- which.max(deaths_assessment[, 2])
+  if (q == 1) {
+    top_deaths <- deaths_assessment[top_deaths_row, ]
+  } else {
+    top_deaths <- rbind(top_deaths, deaths_assessment[top_deaths_row, ])
+  }
+  deaths_assessment <- deaths_assessment[-top_deaths_row, ]
+}
+
+kable(top_deaths, row.names = FALSE, col.names = c("Country", "Deaths"))
+```
+
+The two tables above display the top 5 countries by total COVID-19 confirmations and deaths respectively. The United States is in both lists, indicating that it had both the highest number of confirmed cases and highest death toll globally. The tables also reflect what the risk assessment limitations in the differences between the confirmation number and total deaths. This can give a good snippet of the differences in reporting practices, population size across countries, and healthcare infrastructure. 
+
