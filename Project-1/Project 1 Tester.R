@@ -91,3 +91,34 @@ min_risk_region = risk_assessment[min_risk_row, 2]
 # Printing the results
 print(paste("The region with the highest risk is", max_risk_region))
 print(paste("The region with the lowest risk is", min_risk_region))
+
+# Objective 5
+# Creating a vector with all unique regions in the dataset
+unique_regions <- unique(confirmations$Country.Region)
+# Creating a vector of the length of the unique_regions vector
+confirmations_sums <- numeric(length(unique_regions))
+# Using a for loop to calculate the sum of COVID-19 confirmations per country
+for (k in 1:length(unique_regions)) {
+  confirmations_sums[k] <- sum(confirmations[confirmations$Country.Region == unique_regions[k], length(confirmations[1,])])
+}
+
+# Creating a dataframe to edit
+confirmations_assessment <- data.frame(unique_regions, confirmations_sums)
+# Using a for loop to create a dataframe of the countries among the top 5 most confirmed cases of COVID-19
+for (m in 1:5) {
+  # In every iteration, a new row with the max amount of confirmations is saved to top_confirmations_row
+  top_confirmations_row <- which.max(confirmations_assessment[, 2])
+  # On the first iteration, top_confirmations is initialized with the first row being added
+  if (m == 1) {
+    top_confirmations <- confirmations_assessment[top_confirmations_row, ]
+  }
+  # In all other cases, rbind is used to append more rows onto top_confirmations
+  else {
+    top_confirmations <- rbind(top_confirmations, confirmations_assessment[top_confirmations_row, ])
+  }
+  # Every iteration also has that row removed from confirmations_assessment so that the next max can be identified
+  confirmations_assessment <- confirmations_assessment[-top_confirmations_row, ]
+}
+
+# Turning the top_confirmations dataframe into a table
+kable(top_confirmations)
