@@ -1,14 +1,17 @@
 ---
 title: "Project 1"
-author: "Name: Stirling Schabacker \n Partner: Riley Williams"
+author: "Stirling Schabacker & Riley Williams"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
 ---
+
+GitHub Repository: https://github.com/stirling834-ops/CSIT-165/tree/master/Project-1
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(geosphere)
 library(knitr)
+library(kableExtra)
 ```
 
 ```{r load-data}
@@ -167,12 +170,10 @@ for (m in 1:5) {
 }
 
 # Turning the top_confirmations dataframe into a table
-kable(top_confirmations)
-# in case you want to have the columns similar to mine :)
-# kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
+kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
 ```
 
-Table for the Deaths summary
+## Deaths Table
 
 ```{r objective-5b}
 unique_regions_deaths <- unique(deaths$Country.Region)
