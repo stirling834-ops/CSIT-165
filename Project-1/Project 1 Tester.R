@@ -121,4 +121,27 @@ for (m in 1:5) {
 }
 
 # Turning the top_confirmations dataframe into a table
-kable(top_confirmations)
+kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
+
+unique_regions_deaths <- unique(deaths$Country.Region)
+deaths_sums <- numeric(length(unique_regions_deaths))
+
+# loop through each country and sum total deaths
+for (k in 1:length(unique_regions_deaths)) {
+  deaths_sums[k] <- sum(deaths[deaths$Country.Region == unique_regions_deaths[k], length(deaths[1,])])
+}
+
+deaths_assessment <- data.frame(unique_regions_deaths, deaths_sums)
+
+# loop through 5 times to find top 5 countries by deaths
+for (q in 1:5) {
+  top_deaths_row <- which.max(deaths_assessment[, 2])
+  if (q == 1) {
+    top_deaths <- deaths_assessment[top_deaths_row, ]
+  } else {
+    top_deaths <- rbind(top_deaths, deaths_assessment[top_deaths_row, ])
+  }
+  deaths_assessment <- deaths_assessment[-top_deaths_row, ]
+}
+
+kable(top_deaths, row.names = FALSE, col.names = c("Country", "Deaths"))

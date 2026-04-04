@@ -1,8 +1,9 @@
 ---
 title: "Project 1"
-author: "Name: Stirling Schabacker \n Partner: Riley Williams"
+author: "Name: Stirling Schabacker
+Partner: Riley Williams"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -11,33 +12,40 @@ library(geosphere)
 library(knitr)
 ```
 
+## Setup: Download files
+
+To begin, the datasets for COVID-19 confirmations and deaths are downloaded onto the machine and can be accessed through the RStudio environment and the data can be read, extracted, and used for the completion of our five objectives for the project. This can be down by using the code block below. 
 ```{r load-data}
-# download datasets fresh each time the document is rendered
+# Download datasets fresh each time the document is rendered
 download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", destfile = "deaths.csv")
 
 download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", destfile = "confirmations.csv")
 
-# load into data frames
+# Load into data frames
 deaths <- read.csv("deaths.csv")
 confirmations <- read.csv("confirmations.csv")
 ```
+After downloading both of the time series onto the machine and are imported into the environment, they can be seen on the environment tab. Double clicking one shows the data on a dataframe in a tab separate from R scripts and RMarkdown files. This is useful for accessing which columns are needed for completing the project objectives.
+![](C:/Users/Kua50/Documents/CSIT-165/Project-1/Capture_101.png)
 
-## Objective 1
 
+## Objective 1: Determining the Origin of COVID-19
+
+To determine the origin of COVID-19, the max amount of confirmations and deaths on the first day on both datasets can be identified using the code block below. It can be assumed that the max confirmations and deaths would be in the same region. Though to be sure, we check using an if/else statement on if the region with the max amount of confirmations is the same as the region with the max amount of deaths on the first day.
 ```{r objective-1}
-# first date column is index 5; find row with max confirmations and deaths on day 1
+# First date column is index 5; find row with max confirmations and deaths on day 1
 max_confirmations_row <- which.max(confirmations[, 5])
 max_deaths_row <- which.max(deaths[, 5])
 
-# extract region names
+# Extract region names
 origin_confirmations <- confirmations[max_confirmations_row, "Country.Region"]
 origin_deaths <- deaths[max_deaths_row, "Country.Region"]
 
-# save origin coordinates for use in objective 3
+# Save origin coordinates for use in objective 3
 origin_lat <- confirmations[max_confirmations_row, "Lat"]
 origin_long <- confirmations[max_confirmations_row, "Long"]
 
-# confirm both datasets point to the same origin
+# Confirm both datasets point to the same origin
 if (origin_confirmations == origin_deaths) {
   print(paste("The origin of COVID-19 is", origin_confirmations))
 } else {
@@ -45,11 +53,12 @@ if (origin_confirmations == origin_deaths) {
               "Deaths origin:", origin_deaths))
 }
 ```
-
 Based on the first recorded day in the dataset, China had the greatest number of both deaths and confirmations. This suggests that China is the likely origin of COVID-19. The if statement confirms that both datasets indicate the same region, which validates the prediction. This also aligns with early epidemiological reports that indicate the outbreak began in China (specifically Wuhan, Hubei province based on historical records) in 2019.
 
-## Objective 2
 
+## Objective 2: Locating the Latest Area with a First Confirmed Case
+
+Every row and every column with confirmations (starting on Column 5 which contains confirmations on the first day) of the PDL time series can be scanned to identify the region with the latest first confirmation. This can be done with two for loops (one of them being nested) and if statements. With every iteration, the region is updated until the region with the latest first confirmation is found.
 ```{r objective-2}
 latest_region <- ""
 latest_date_index <- 0
@@ -77,11 +86,12 @@ for (i in 1:nrow(confirmations)) {
 latest_region
 names(confirmations)[latest_date_index]
 ```
-
 According to the dataset, the most recent region to record its first confirmed case was the United Kingdom on July 20th, 2022. The for loop looked through each region's data column until it found the first non-zero value to identify when each area entered the dataset. The difference between outbreak report in 2019 and the first confirmed case being 2022 potentially reflects a change in reporting policies, or a newly recognized regional subdivision, rather than the actual "first" exposure.
 
-## Objective 3
 
+## Objective 3: Showing how Widespread COVID-19 got
+
+This is done by taking the longitude and latitude of the region with the latest first confirmation (finding this is done in the Objective 2 code block!) and the longitude and latitude of the origin of COVID-19 (finding this is also done in the Objective 1 code block!) and the distance between them is calculated in miles. This is done using the code block below, which uses the dism function in the geosphere package. This calculates the distance between the two region coordinates in meters, and the distance in miles is calculated from there.
 ```{r objective-3}
 # Calculating the distance from the origin of COVID-19 to the latest area to have a first confirmed case, which uses
 # the dism function from the geosphere package to calculate distance from longitude/latitude to meters
@@ -94,8 +104,10 @@ print(paste(latest_region, "is", round(distance_miles, 4), "miles away from", or
 In epidemiology models, knowing distance between first cases and most recent confirmations is important as that can inform models as to the spread of the disease, which can help isolate *how* a disease is spread. The fact that UK is over 8,747 miles away is important because that's almost half a globe away, and 2.5 years after the initial outbreak. This would seem to indicate that the most recent reporting is in fact a change/standarization of reporting, as there is a low chance that it took 2.5 years to travel 8,700 miles. 
 
 
-## Objective 4
+## Objective 4: Calculating the Risk Score for Every Region
 
+This excludes cruise ships. To calculate the risk score, the following formula is used: `risk_score = 100*(deaths/confirmations)`
+After calculating the total confirmations and deaths in each region (excluding cruise ships), the risk score for each unique region is calculated. From there, a dataframe is created and the minimum and maximum risk values are identified.
 ```{r objective-4}
 # Getting information to create a new dataframe for risk score assessment
 # This includes States/Provinces, Countries/Regions, Latitude, Longitude, Confirmations, Deaths, and the Risk Score
@@ -129,16 +141,16 @@ global_risk <- 100 * (sum(filtered_deaths) / sum(filtered_confirmations))
 print(paste("The highest risk score is", round(risk_assessment[max_risk_row, 7], 4), "in", max_risk_region))
 print(paste("The lowest risk score is", round(risk_assessment[min_risk_row, 7], 4), "in", min_risk_region))
 print(paste("The global risk score is", round(global_risk, 4)))
-
-
 ```
 Risk scores are useful for identifying areas that may be especially vulnerable to disease burden and for comparing outcomes across regions. However, they carry significant limitations, best demonstrated by the extremes in this dataset. The global risk score of approximately 1.01 suggests that roughly 1 out of every 100 confirmed cases resulted in death worldwide. North Korea's score of 600 reflects not a true mortality rate but rather the combination of an overpopulated country under an authoritarian regime that historically suppresses health data; with so few confirmed cases reported, even a small number of deaths produces an astronomically inflated score. Risk scores assume that confirmations and deaths are accurately and consistently reported, failing to account for healthcare access, age distribution, testing availability, and government transparency. Antarctica's score of 0 is unsurprising given that its small vetted research population likely had limited exposure throughout the pandemic entirely.
 
 
+## Objective 5: Showing the Top 5 Regions with Highest Confirmations & Deaths
 
-## Objective 5
+For this, both tables are created separately using the two code blocks below. 
 
-```{r, objective-5}
+### Table for the Confirmations summary
+```{r, objective-5a}
 # Creating a vector with all unique regions in the dataset
 unique_regions <- unique(confirmations$Country.Region)
 # Creating a vector of the length of the unique_regions vector
@@ -167,13 +179,10 @@ for (m in 1:5) {
 }
 
 # Turning the top_confirmations dataframe into a table
-kable(top_confirmations)
-# in case you want to have the columns similar to mine :)
-# kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
+kable(top_confirmations, row.names = FALSE, col.names = c("Country", "Confirmations"))
 ```
 
-Table for the Deaths summary
-
+### Table for the Deaths summary
 ```{r objective-5b}
 unique_regions_deaths <- unique(deaths$Country.Region)
 deaths_sums <- numeric(length(unique_regions_deaths))
@@ -198,6 +207,4 @@ for (q in 1:5) {
 
 kable(top_deaths, row.names = FALSE, col.names = c("Country", "Deaths"))
 ```
-
 The two tables above display the top 5 countries by total COVID-19 confirmations and deaths respectively. The United States is in both lists, indicating that it had both the highest number of confirmed cases and highest death toll globally. The tables also reflect what the risk assessment limitations in the differences between the confirmation number and total deaths. This can give a good snippet of the differences in reporting practices, population size across countries, and healthcare infrastructure. 
-
