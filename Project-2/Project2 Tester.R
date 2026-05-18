@@ -1,43 +1,28 @@
----
-title: "Group Project 2: CSIT-165 COVID-19 Global & US Analysis"
-author: "Sydney (WHO) & Riley (USPRT"
-date: "2026-05-18"
-output: html_document
----
+library("leaflet")
+library("dplyr")
+library("tidyr")
+library("kableExtra")
+library("knitr")
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-library(tidyverse)
-library(leaflet)
-library(knitr)
-library(kableExtra)
-library(cowplot)
-library(lubridate)
-```
+# Objective 0: Downloading the necessary files from the database
+# Deaths
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", destfile = "deaths_global.csv")
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv", destfile = "deaths_US.csv")
+# Confirmations
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", destfile = "confirmations_global.csv")
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv", destfile = "confirmations_US.csv")
+# Recoveries
+download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv", destfile = "recoveries_global.csv")
 
-# Data
-
-## WHO: Global Data (Stirling)
-
-```{r load-global}
-confirmed_global <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
-
-deaths_global <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-
-recoveries_global <- download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv", destfile = "recoveries_global.csv")
-```
+# Loading dataframes
+deaths_global <- read.csv("deaths_global.csv")
+deaths_US <- read.csv("deaths_US.csv")
+confirmations_global <- read.csv("confirmations_global.csv")
+confirmations_US <- read.csv("confirmations_US.csv")
+recoveries_global <- read.csv("recoveries_global.csv")
 
 
-```{r load-us}
-deaths_US <- download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv", destfile = "deaths_US.csv")
-
-confirmations_US <- download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv", destfile = "confirmations_US.csv")
-```
-
-
-# Objective 1 - Global Map
-
-```{r}
+# Objective 1: Global Map
 # Step 1: Create dataframes for datapoints on the plot
 # Creating a vector with all unique regions in the dataset
 unique_regions <- unique(confirmations_global$Country.Region)
@@ -91,13 +76,9 @@ leaflet(data = confirmations_sums) %>%
     options = layersControlOptions(collapsed = FALSE)
   ) %>%
   hideGroup("Deaths")
-```
 
----
 
-# Objective 2 - Narrowing Down Hot Spots
-
-```{r}
+# Objective 2: Narrowing Down Hot Spots
 # Rearranging both confirmation_sums & deaths_sums to be in descending order based on values for confirmations & deaths
 # Confirmations
 confirmations_sums <- confirmations_sums %>%
@@ -123,24 +104,3 @@ kable(
     "Confirmations" = 2,
     "Deaths" = 2
   ))
-```
-
----
-
-# Objective 3 - Zooming Into Our State
-
-```{r}
-
-```
-
----
-
-# Objective 4 - Digging Deeper
-
-```{r}
-
-```
-
----
-
-# Summary
