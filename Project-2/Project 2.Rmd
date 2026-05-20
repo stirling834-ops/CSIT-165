@@ -1,0 +1,67 @@
+---
+title: "Group Project 2: CSIT-165 COVID-19 Global & US Analysis"
+author: "Sydney (WHO) & Riley (USPRT"
+date: "2026-05-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(leaflet)
+library(knitr)
+library(kableExtra)
+library(cowplot)
+library(lubridate)
+```
+
+# Data
+
+## WHO: Global Data (Stirling)
+
+```{r load-global}
+confirmed_global <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+
+deaths_global <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+```
+
+
+```{r load-us}
+
+
+```
+
+
+# Objective 1 - Global Map
+
+```{r}
+
+```
+
+---
+
+# Objective 2 - Narrowing Down Hot Spots
+
+```{r}
+
+```
+
+---
+
+# Objective 3 - Zooming Into Our State
+
+```{r}
+
+```
+
+---
+
+# Objective 4 - Digging Deeper
+
+```{r}
+
+```
+
+---
+
+# Summary
