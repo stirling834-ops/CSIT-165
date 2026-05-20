@@ -36,8 +36,10 @@ confirmed_us <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID
 deaths_us <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv")
 ```
 
+# WHO Objectives (Riley)
 
 # Objective 1 - Global Map
+To create a global map, the leaflet package was used combined with using map data. I used methods to plot the confirmations and deaths data for each region of the world by identifying each unique region. The sums of confirmations and deaths were taken according to the unique regions in the global data files. The dplyr package was used to quickly calculate the sums, and to make it readable on a map plot. 
 
 ```{r}
 # Step 1: Create dataframes for datapoints on the plot
@@ -96,14 +98,12 @@ leaflet(data = confirmations_sums) %>%
   ) %>%
   hideGroup("Deaths")
 ```
-
-### Write Up
-
+In this global map, the areas with data on COVID-19 confirmations and deaths are shown. The data points are colored depending on the intensity of confirmations/deaths. In this case, blue represents a low amount, purples and colors adjacent to it represent a middling amount, and red represents a high amount. The intensities between confirmations and deaths line up, with every data point between both representing the same country having similar intensities. There are notable areas with higher intensities, such as the Americas, throughout Europe, South Africa, India and areas around, Australia, Indonesia, and the Philippines.
 
 ---
 
 # Objective 2 - Narrowing Down Hot Spots
-
+In Objective 1, hot spots for COVID-19 confirmations and deaths throughout the world were noticed throughout the world map. To further narrow down which countries are most affected by COVID-19, a sorted table was created, with the most affected cases at the top. To create this, the data frames containing the sums of confirmations and deaths for each country in the dataset are arranged by amount of confirmations and deaths in descending order. Since the data frames for both are separate, the table needs to reflect this. Thus, the table have five different columns: a rank column in descending order, two columns for confirmations (countries and number of confirmations), and two columns for deaths (countries and number of deaths). To distinguish between the two pairs of columns, an additional title above both is displayed.
 ```{r}
 # Rearranging both confirmation_sums & deaths_sums to be in descending order based on values for confirmations & deaths
 # Confirmations
@@ -134,11 +134,12 @@ kable(
   )) %>%
   column_spec(4, border_left = TRUE)
 ```
-
-### Write Up
+Generally the same countries have high rankings between both confirmations and deaths, though countries such as the United States, India, and Brazil have the highest confirmations and deaths. Countries such as Mexico and Peru have a noticeably large amount of deaths, ranking higher than in confirmations. The United States notably has the highest confirmations and deaths by a notably large margin.
 
 
 ---
+
+# USPRT Objectives (Stirling)
 
 # Objective 3 - Zooming Into Our State
 

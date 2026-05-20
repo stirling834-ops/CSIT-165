@@ -1,8 +1,9 @@
-library("leaflet")
-library("dplyr")
-library("tidyr")
-library("kableExtra")
-library("knitr")
+library(tidyverse)
+library(leaflet)
+library(knitr)
+library(kableExtra)
+library(cowplot)
+library(lubridate)
 
 # Objective 0: Downloading the necessary files from the database
 # Deaths
@@ -16,9 +17,9 @@ download.file("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/
 
 # Loading dataframes
 deaths_global <- read.csv("deaths_global.csv")
-deaths_US <- read.csv("deaths_US.csv")
+deaths_us <- read.csv("deaths_US.csv")
 confirmations_global <- read.csv("confirmations_global.csv")
-confirmations_US <- read.csv("confirmations_US.csv")
+confirmed_us <- read.csv("confirmations_US.csv")
 recoveries_global <- read.csv("recoveries_global.csv")
 
 
@@ -104,3 +105,81 @@ kable(
     "Confirmations" = 2,
     "Deaths" = 2
   ))
+
+
+# Objective 3
+ca_confirmed <- confirmed_us %>%
+  filter(Province_State == "California") %>%
+  select(Admin2, starts_with("1/"), starts_with("2/"), starts_with("3/"), 
+         starts_with("4/"), starts_with("5/"), starts_with("6/"),
+         starts_with("7/"), starts_with("8/"), starts_with("9/"),
+         starts_with("10/"), starts_with("11/"), starts_with("12/")) %>%
+  pivot_longer(-Admin2, names_to = "date", values_to = "confirmed") %>%
+  mutate(date = as.Date(date, format = "%m/%d/%y"))
+
+ca_total <- ca_confirmed %>%
+  group_by(date) %>%
+  summarise(confirmed = sum(confirmed))
+
+moderna_date <- as.Date("2021-01-29") + weeks(6)
+delta_date <- as.Date("2021-05-11")
+omicron_date <- as.Date("2021-11-26")
+
+ca_plot <- ggplot(ca_total, aes(x = date, y = confirmed)) +
+  geom_point(size = 0.5) +
+  geom_vline(xintercept = moderna_date, color = "steelblue", linetype = "dashed", linewidth = 1.2) +
+  geom_vline(xintercept = delta_date, color = "firebrick", linetype = "dashed", linewidth = 1.2) +
+  geom_vline(xintercept = omicron_date, color = "red", linetype = "dashed", linewidth = 1.2) +
+  labs(title = "California COVID-19 Confirmations",
+       x = "Date", y = "Cumulative Confirmations") +
+  theme_minimal()
+
+ca_plot
+
+top3_cities <- ca_confirmed %>%
+  filter(Admin2 %in% c("Los Angeles", "San Diego", "Orange"))
+
+city_plot <- ggplot(top3_cities, aes(x = date, y = confirmed, color = Admin2)) +
+  geom_point(size = 1.2) +
+  geom_vline(xintercept = moderna_date, color = "steelblue", linetype = "dashed", linewidth = 1.2) +
+  geom_vline(xintercept = delta_date, color = "firebrick", linetype = "dashed", linewidth = 1.2) +
+  geom_vline(xintercept = omicron_date, color = "red", linetype = "dashed", linewidth = 1.2) +
+  scale_color_manual(values = c("Los Angeles" = "#d95f02", "Orange" = "#1b9e77", "San Diego" = "#7570b3")) +
+  labs(title = "Top 3 CA Counties COVID-19 Confirmations",
+       x = "Date", y = "Cumulative Confirmations", color = "County") +
+  theme_minimal() +
+  theme(legend.key.size = unit(1.5, "lines")) +
+  guides(color = guide_legend(override.aes = list(size = 4)))
+
+city_plot
+
+city_plot <- city_plot + theme(panel.grid = element_line(color = "grey90"))
+plot_grid(ca_plot, city_plot, ncol = 1)
+
+
+# Objective 4
+last_col_confirmed <- ncol(confirmed_us)
+last_col_deaths <- ncol(deaths_us)
+
+obj4_data <- deaths_us %>%
+  select(Admin2, Province_State, Population) %>%
+  mutate(
+    confirmed = confirmed_us[[last_col_confirmed]],
+    deaths = deaths_us[[last_col_deaths]]
+  ) %>%
+  filter(Population > 0, confirmed > 0, deaths > 0)
+
+pop_plot <- ggplot(obj4_data, aes(x = log(Population), y = log(confirmed))) +
+  geom_point(size = 0.8, alpha = 0.5, color = "#6a0dad") +
+  labs(title = "Population vs Confirmations",
+       x = "Log(Population)", y = "Log(Confirmed)") +
+  theme_minimal()
+
+death_plot <- ggplot(obj4_data, aes(x = log(confirmed), y = log(deaths))) +
+  geom_point(size = 0.8, alpha = 0.5, color = "#6a0dad") +
+  labs(title = "Confirmations vs Deaths",
+       x = "Log(Confirmed)", y = "Log(Deaths)") +
+  theme_minimal()
+
+plot_grid(pop_plot, death_plot, ncol = 2)
+
