@@ -66,8 +66,12 @@ deaths_sums <- deaths_global %>%
   )
 
 # Step 2: Creating a global map plot with leaflet
-pal1 <- colorFactor(c("blue", "red"), domain = confirmations_sums[[4]])
-pal2 <- colorFactor(c("blue", "red"), domain = deaths_sums[[4]])
+# Define quartile breakpoints for color scaling
+conf_breaks <- quantile(confirmations_sums [[4]], probs = c(0, 0.25, 0.75, 1), na.rm = TRUE)
+death_breaks <- quantile(deaths_sums[[4]], probs = c(0, 0.25, 0.75, 1), na.rm = TRUE)
+
+pal1 <- colorBin(c("purple", "orange", "red"), domain = confirmations_sums[[4]], bins = conf_breaks)
+pal2 <- colorBin(c("purple", "orange", "red"), domain = deaths_sums[[4]], bins = death_breaks)
 
 leaflet(data = confirmations_sums) %>%
   addProviderTiles("CartoDB.Positron") %>%
@@ -98,6 +102,9 @@ leaflet(data = confirmations_sums) %>%
 ```
 
 ### Write Up
+
+The map reveals that Europe and the United States were hit hardest in terms of both confirmations and deaths, though for different reasons. Europe's high density of neighboring countries likely increased communicability across borders, while the US's sheer geographic size and population drove its raw numbers. Summing by country rather than province makes the map significantly more readable; individual province-level dots would create visual noise that obscures the broader geographic patterns important for public health messaging, even if some regional variation is lost in the aggregation. Countries with high confirmation counts generally also showed high death counts, though the relationship was not 1:1, which likely reflects differences in healthcare access, reporting standards, and policy responses across countries (and raises interesting questions about whether some COVID deaths may have been recorded under other causes in certain regions).
+
 
 
 ---
@@ -137,6 +144,12 @@ kable(
 
 ### Write Up
 
+The United States leads in both confirmations and deaths, which is unsurprising given its combination of dense urban population clusters, a largely privatized healthcare system, and limited social safety net programs that would have made sustained social distancing or reduced-exposure behaviors difficult for many workers. The rankings for confirmations and deaths are not identical. Some countries appear higher in one list than the other, which may reflect differences in how COVID deaths were reported and classified, particularly in cases where preexisting conditions like heart disease complicated cause-of-death determinations. Countries that rank disproportionately high in deaths relative to their confirmation count likely faced compounding challenges including limited healthcare infrastructure, inconsistent public health messaging, weaker mask and social distancing mandates, and lower vaccination rates, which would increase the likelihood that a confirmed case resulted in death.
+
+
+
+
+
 
 ---
 
@@ -166,11 +179,14 @@ omicron_date <- as.Date("2021-11-26")
 
 ca_plot <- ggplot(ca_total, aes(x = date, y = confirmed)) +
   geom_point(size = 0.5) +
-  geom_vline(xintercept = moderna_date, color = "steelblue", linetype = "dashed", linewidth = 1.2) +
-  geom_vline(xintercept = delta_date, color = "firebrick", linetype = "dashed", linewidth = 1.2) +
-  geom_vline(xintercept = omicron_date, color = "red", linetype = "dashed", linewidth = 1.2) +
+  geom_vline(aes(xintercept = moderna_date, color = "Moderna 2nd Dose"), linetype = "dashed", linewidth = 1.2) +
+  geom_vline(aes(xintercept = delta_date, color = "Delta Dominant"), linetype = "dashed", linewidth = 1.2) +
+  geom_vline(aes(xintercept = omicron_date, color = "Omicron Dominant"), linetype = "dashed", linewidth = 1.2) +
+  scale_color_manual(values = c("Moderna 2nd Dose" = "lightblue", "Delta Dominant" = "firebrick", "Omicron Dominant" = "red"),
+                   breaks = c("Moderna 2nd Dose", "Delta Dominant", "Omicron Dominant")) +
+  
   labs(title = "California COVID-19 Confirmations",
-       x = "Date", y = "Cumulative Confirmations") +
+       x = "Date", y = "Cumulative Confirmations", color = "Event") +
   theme_minimal()
 
 ca_plot
@@ -203,6 +219,9 @@ plot_grid(ca_plot, city_plot, ncol = 1)
 ```
 
 ### Write Up
+
+California's COVID-19 confirmation trajectory shows steady cumulative growth throughout the pandemic, with the curve never meaningfully declining. Even the smaller fluctuations visible in the data represent slowdowns in the rate of new cases rather than any true reduction in total confirmations. The Moderna second dose appears to have had some moderating effect, as the period following the blue line shows a relative plateau before delta became dominant; however, when omnicron emerged as the dominate strain, it is clear that the vaccine's efficacy against new variants had reached its limits, with a spike steeper than the initial pandemic growth rate (which was likely compounded by increased public complacency around preventative measures given widespread vaccination). Los Angeles, Orange, and San Diego counties all follow the same general trajectory, suggesting that the shape of the curve is driven more by statewide conditions than local factors; however, LA's dramatically higher counts reflect both its larger population and the unavoidable density of contact in a metro area that size, with its fluctuations proportionally mirroring those of the smaller counties
+
 
 ---
 
@@ -239,9 +258,11 @@ plot_grid(pop_plot, death_plot, ncol = 2)
 
 
 ### Write Up
-
+The log-transformed population vs. confirmations plot reveals a clear positive relationship between population size and case counts, though population alone does not tell the whole story. Factors like population density, socioeconomic status, and the necessity of in-person work would all compound the effect of raw population numbers on confirmation rates. The confirmations vs. deaths plot suggests the relationship is generally consistent but not without variation, which may reflect gaps in reporting on both ends. Some confirmations may have been missed in areas where people attributed symptoms to other illnesses, while some deaths may have been complicated by comorbidities or represent long-COVID outcomes. This raises the question of whether a death caused by long-COVID complications would be classified as a COVID death in the data. The log transformation was necessary to standardize the scale across counties with vastly different population sizes. Without it, the plot would be dominated by a few large counties like LA while smaller counties would be compressed into an unreadable cluster at the bottom, making any relationship between population and confirmations effectively invisible.
 
 
 ---
 
 # Summary
+Globally, this analysis revealed a world learning in real time how to respond to a widespread pandemic, with meaningful variation in outcomes across countries that will be vital to future epidemiological research. Public health and reporting policies proved integral to the relationship between confirmations and deaths, as countries with stronger infrastructure and more consistent messaging generally fared better, while densely populated areas with limited social protections suffered disproportionately. California's trajectory illustrates how even within a single state, population size and density drove case counts, and the emergence of new variants like delta and omicron demonstrated the limits of early vaccine efficacy against a rapidly mutating virus. The long-term effects of COVID on survivors, including long-COVID outcomes and their implications for mortality reporting, remain an open area of study, and standardizing both public health responses and data collection practices will be essential to reducing the initial loss of life in any future pandemic.
+
